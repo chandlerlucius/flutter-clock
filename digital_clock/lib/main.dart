@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_clock_helper/customizer.dart';
 import 'package:flutter_clock_helper/model.dart';
+import 'package:intl/intl.dart';
 
 void main() => runApp(ClockCustomizer((ClockModel model) => MyApp(model)));
 
@@ -50,21 +53,30 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  DateTime _now = DateTime.now();
 
-  void _incrementCounter() {
+  void updateNow() {
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      _now = DateTime.now();
+    });
+  }
+
+  void startTimer() {
+    updateNow();
+    Timer.periodic(Duration(seconds: 60), (Timer t) {
+      updateNow();
     });
   }
 
   @override
+  void initState() {
+    super.initState();
+    Timer(Duration(seconds: 60 - DateTime.now().second), startTimer);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final String _format = widget.model.is24HourFormat ? 'kk:mm' : 'hh:mm';
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //
@@ -93,7 +105,7 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              widget.model.temperatureString,
+              DateFormat(_format).format(_now),
               style: Theme.of(context).textTheme.display1,
             ),
           ],
