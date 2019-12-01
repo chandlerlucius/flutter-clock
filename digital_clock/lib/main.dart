@@ -8,7 +8,7 @@ import 'package:intl/intl.dart';
 void main() => runApp(ClockCustomizer((ClockModel model) => MyApp(model)));
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+  
   const MyApp(this.model);
 
   final ClockModel model;
@@ -16,18 +16,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Flutter Digital Clock',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
         primarySwatch: Colors.blue,
+        fontFamily: 'NovaMono'
       ),
       home: MyHomePage(model: model),
     );
@@ -76,13 +68,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final String _format = widget.model.is24HourFormat ? 'kk:mm' : 'hh:mm';
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
+    final String _format = widget.model.is24HourFormat ? 'kk mm' : 'hh mm';
     return Scaffold(
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
@@ -106,7 +92,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             Text(
               DateFormat(_format).format(_now),
-              style: Theme.of(context).textTheme.display1,
+              style: Theme.of(context).textTheme.display4,
             ),
           ],
         ),
