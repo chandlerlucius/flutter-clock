@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_clock_helper/customizer.dart';
+import 'package:flutter_clock_helper/model.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(ClockCustomizer((ClockModel model) => MyApp(model)));
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
+  const MyApp(this.model);
+  
+  final ClockModel model;
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
