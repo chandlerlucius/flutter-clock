@@ -46,6 +46,10 @@ flutter:
     - family: NovaMono
       fonts:
         - asset: fonts/NovaMono-Regular.ttf
+  
+  assets:
+    - images/background_light_1.jpg
+    - images/background_dark_1.jpg
 
   # To add assets to your application, add an assets section, like this:
   # assets:
