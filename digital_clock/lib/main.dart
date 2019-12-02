@@ -73,41 +73,53 @@ class _MyHomePageState extends State<MyHomePage> {
     final String _format = widget.model.is24HourFormat ? 'HHmm' : 'hhmm';
     final String _time = DateFormat(_format).format(_now);
     final String _date = DateFormat('EEE, MMM dd').format(_now);
-    final TextStyle _numberStyle = TextStyle(
-      color: Colors.black,
-    );
+    final String _temp = widget.model.temperature.toString().split(".")[0] + widget.model.unitString;
 
     return Scaffold(
       body: Center(
         child: Stack(
           children: <Widget>[
             Positioned(
-                top: MediaQuery.of(context).size.height / 4,
+                top: MediaQuery.of(context).size.height / 6,
                 left: 0,
                 child: Text(
                   _time.substring(0, 1),
                   style: Theme.of(context).textTheme.display4,
                 )),
             Positioned(
-                top: 0,
-                left: MediaQuery.of(context).size.height / 4,
+                top: MediaQuery.of(context).size.height / 20,
+                left: MediaQuery.of(context).size.width / 6,
                 child: Text(
                   _time.substring(1, 2),
                   style: Theme.of(context).textTheme.display4,
                 )),
             Positioned(
-                bottom: 0,
-                left: MediaQuery.of(context).size.height / 2.5,
+                bottom: - MediaQuery.of(context).size.height / 20,
+                left: MediaQuery.of(context).size.width / 4,
                 child: Text(
                   _time.substring(2, 3),
                   style: Theme.of(context).textTheme.display4,
                 )),
             Positioned(
-                top: MediaQuery.of(context).size.height / 4,
-                left: MediaQuery.of(context).size.height / 1.5,
+                bottom: MediaQuery.of(context).size.height / 15,
+                left: MediaQuery.of(context).size.width / 4 + MediaQuery.of(context).size.width / 6,
                 child: Text(
                   _time.substring(3, 4),
                   style: Theme.of(context).textTheme.display4,
+                )),
+            Positioned(
+                top: 0,
+                right: 0,
+                child: Text(
+                  _date,
+                  style: Theme.of(context).textTheme.display2,
+                )),
+            Positioned(
+                bottom: 0,
+                right: 0,
+                child: Text(
+                  _temp,
+                  style: Theme.of(context).textTheme.display2,
                 )),
           ],
         ),
