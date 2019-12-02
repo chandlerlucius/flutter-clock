@@ -8,7 +8,6 @@ import 'package:intl/intl.dart';
 void main() => runApp(ClockCustomizer((ClockModel model) => MyApp(model)));
 
 class MyApp extends StatelessWidget {
-  
   const MyApp(this.model);
 
   final ClockModel model;
@@ -18,9 +17,12 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Digital Clock',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
-        fontFamily: 'NovaMono'
-      ),
+          primarySwatch: Colors.blue,
+          fontFamily: 'NovaMono',
+          textTheme: TextTheme(
+              display4: TextStyle(
+                  fontSize: MediaQuery.of(context).size.height / 2,
+                  height: 1))),
       home: MyHomePage(model: model),
     );
   }
@@ -68,32 +70,45 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final String _format = widget.model.is24HourFormat ? 'kk mm' : 'hh mm';
+    final String _format = widget.model.is24HourFormat ? 'HHmm' : 'hhmm';
+    final String _time = DateFormat(_format).format(_now);
+    final String _date = DateFormat('EEE, MMM dd').format(_now);
+    final TextStyle _numberStyle = TextStyle(
+      color: Colors.black,
+    );
+
     return Scaffold(
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Stack(
           children: <Widget>[
-            Text(
-              DateFormat(_format).format(_now),
-              style: Theme.of(context).textTheme.display4,
-            ),
+            Positioned(
+                top: MediaQuery.of(context).size.height / 4,
+                left: 0,
+                child: Text(
+                  _time.substring(0, 1),
+                  style: Theme.of(context).textTheme.display4,
+                )),
+            Positioned(
+                top: 0,
+                left: MediaQuery.of(context).size.height / 4,
+                child: Text(
+                  _time.substring(1, 2),
+                  style: Theme.of(context).textTheme.display4,
+                )),
+            Positioned(
+                bottom: 0,
+                left: MediaQuery.of(context).size.height / 2.5,
+                child: Text(
+                  _time.substring(2, 3),
+                  style: Theme.of(context).textTheme.display4,
+                )),
+            Positioned(
+                top: MediaQuery.of(context).size.height / 4,
+                left: MediaQuery.of(context).size.height / 1.5,
+                child: Text(
+                  _time.substring(3, 4),
+                  style: Theme.of(context).textTheme.display4,
+                )),
           ],
         ),
       ),
