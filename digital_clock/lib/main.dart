@@ -5,30 +5,10 @@ import 'package:flutter_clock_helper/customizer.dart';
 import 'package:flutter_clock_helper/model.dart';
 import 'package:intl/intl.dart';
 
-void main() => runApp(ClockCustomizer((ClockModel model) => MyApp(model)));
-
-class MyApp extends StatelessWidget {
-  const MyApp(this.model);
-
-  final ClockModel model;
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Digital Clock',
-      theme: ThemeData(
-          fontFamily: 'NovaMono',
-          textTheme: TextTheme(
-              display4: TextStyle(
-                  fontSize: MediaQuery.of(context).size.height / 2,
-                  height: 1))),
-      home: MyHomePage(model: model),
-    );
-  }
-}
+void main() => runApp(ClockCustomizer((ClockModel model) => MyHomePage(model)));
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.model}) : super(key: key);
+  const MyHomePage(this.model);
 
   final ClockModel model;
 
@@ -65,14 +45,20 @@ class _MyHomePageState extends State<MyHomePage> {
     final String _date = DateFormat('EEE, MMM dd').format(_now);
     final String _temp =
         widget.model.temperature.round().toString() + widget.model.unitString;
+    final String _location = widget.model.location;
 
     final Brightness _brightness = Theme.of(context).brightness;
     String _background;
-    if(_brightness == Brightness.light) {
+    if (_brightness == Brightness.light) {
       _background = "background_light_1.jpg";
     } else {
       _background = "background_dark_1.jpg";
     }
+
+    final ThemeData _themeData = Theme.of(context).copyWith(
+        textTheme: Theme.of(context).textTheme.apply(fontFamily: 'NovaMono'));
+    final TextStyle _timeTextStyle = _themeData.textTheme.display4
+        .copyWith(fontSize: MediaQuery.of(context).size.height / 2, height: 1);
 
     return Scaffold(
       body: Container(
@@ -89,21 +75,21 @@ class _MyHomePageState extends State<MyHomePage> {
                 left: 0,
                 child: Text(
                   _time.substring(0, 1),
-                  style: Theme.of(context).textTheme.display4,
+                  style: _timeTextStyle,
                 )),
             Positioned(
                 top: MediaQuery.of(context).size.height / 20,
                 left: MediaQuery.of(context).size.width / 6,
                 child: Text(
                   _time.substring(1, 2),
-                  style: Theme.of(context).textTheme.display4,
+                  style: _timeTextStyle,
                 )),
             Positioned(
                 bottom: -MediaQuery.of(context).size.height / 20,
                 left: MediaQuery.of(context).size.width / 4,
                 child: Text(
                   _time.substring(2, 3),
-                  style: Theme.of(context).textTheme.display4,
+                  style: _timeTextStyle,
                 )),
             Positioned(
                 bottom: MediaQuery.of(context).size.height / 15,
@@ -111,25 +97,30 @@ class _MyHomePageState extends State<MyHomePage> {
                     MediaQuery.of(context).size.width / 6,
                 child: Text(
                   _time.substring(3, 4),
-                  style: Theme.of(context).textTheme.display4,
+                  style: _timeTextStyle,
                 )),
             Align(
                 alignment: Alignment.topRight,
                 child: Text(
                   _date,
-                  style: Theme.of(context).textTheme.display2,
+                  style: _themeData.textTheme.display2,
                 )),
             Align(
                 alignment: Alignment.centerRight,
-                child: Text(
-                  "Good \nAfternoon",
-                  style: Theme.of(context).textTheme.display1,
-                )),
+                child: Container(
+                    width: MediaQuery.of(context).size.width / 3,
+                    child: Text(
+                      _location,
+                      maxLines: 3,
+                      textAlign: TextAlign.right,
+                      overflow: TextOverflow.ellipsis,
+                      style: _themeData.textTheme.display1,
+                    ))),
             Align(
                 alignment: Alignment.bottomRight,
                 child: Text(
                   _temp,
-                  style: Theme.of(context).textTheme.display2,
+                  style: _themeData.textTheme.display2,
                 )),
           ],
         ),
