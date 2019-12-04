@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_clock_helper/customizer.dart';
@@ -17,54 +18,67 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  int _randomNumber = 0;
   DateTime _now = DateTime.now();
 
-  void updateNow() {
+  void _updateNow() {
     setState(() {
       _now = DateTime.now();
     });
   }
 
-  void startTimer() {
-    updateNow();
+  void _changeBackground() {
+    setState(() {
+      final Random _randomGenerator = new Random();
+      int _tempRandomNumber = _randomGenerator.nextInt(2);
+      while (_tempRandomNumber == _randomNumber) {
+        _tempRandomNumber = _randomGenerator.nextInt(2);
+      }
+      _randomNumber = _tempRandomNumber;
+    });
+  }
+
+  void _startTimer() {
+    _updateNow();
     Timer.periodic(Duration(seconds: 60), (Timer t) {
-      updateNow();
+      _updateNow();
+      _changeBackground();
     });
   }
 
   @override
   void initState() {
     super.initState();
-    Timer(Duration(seconds: 60 - DateTime.now().second), startTimer);
+    Timer(Duration(seconds: 60 - DateTime.now().second), _startTimer);
   }
 
   @override
   Widget build(BuildContext context) {
+    final String _location = widget.model.location;
     final String _format = widget.model.is24HourFormat ? 'HHmm' : 'hhmm';
     final String _time = DateFormat(_format).format(_now);
     final String _date = DateFormat('EEE, MMM dd').format(_now);
     final String _temp =
         widget.model.temperature.round().toString() + widget.model.unitString;
-    final String _location = widget.model.location;
-
-    final Brightness _brightness = Theme.of(context).brightness;
-    String _background;
-    if (_brightness == Brightness.light) {
-      _background = "background_light_1.jpg";
-    } else {
-      _background = "background_dark_1.jpg";
-    }
 
     final ThemeData _themeData = Theme.of(context).copyWith(
         textTheme: Theme.of(context).textTheme.apply(fontFamily: 'NovaMono'));
     final TextStyle _timeTextStyle = _themeData.textTheme.display4
         .copyWith(fontSize: MediaQuery.of(context).size.height / 2, height: 1);
 
+    final Brightness _brightness = Theme.of(context).brightness;
+    String _background;
+    if (_brightness == Brightness.light) {
+      _background = "light-" + _randomNumber.toString() + ".jpg";
+    } else {
+      _background = "dark-" + _randomNumber.toString() + ".jpg";
+    }
+
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage("images/" + _background),
+            image: AssetImage("images/background/" + _background),
             fit: BoxFit.cover,
           ),
         ),
