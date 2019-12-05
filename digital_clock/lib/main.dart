@@ -20,6 +20,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _randomNumber = 0;
   DateTime _now = DateTime.now();
+  final Random _randomGenerator = new Random();
 
   void _updateNow() {
     setState(() {
@@ -29,7 +30,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _changeBackground() {
     setState(() {
-      final Random _randomGenerator = new Random();
       int _tempRandomNumber = _randomGenerator.nextInt(2);
       while (_tempRandomNumber == _randomNumber) {
         _tempRandomNumber = _randomGenerator.nextInt(2);
@@ -40,6 +40,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _startTimer() {
     _updateNow();
+    _changeBackground();
     Timer.periodic(Duration(seconds: 60), (Timer t) {
       _updateNow();
       _changeBackground();
@@ -49,6 +50,8 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+    _updateNow();
+    _changeBackground();
     Timer(Duration(seconds: 60 - DateTime.now().second), _startTimer);
   }
 
