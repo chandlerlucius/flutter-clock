@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -18,9 +19,12 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _randomNumber = 0;
   DateTime _now = DateTime.now();
-  final Random _randomGenerator = new Random();
+  static final Random _randomGenerator = new Random();
+  static final HashSet<int> _intSet = new HashSet();
+  static final int _maxFiles = 8;
+  static int _randomNumber = _randomGenerator.nextInt(_maxFiles);
+  int _previousRandomNumber = _randomNumber;
 
   void _updateNow() {
     setState(() {
@@ -30,18 +34,22 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _changeBackground() {
     setState(() {
-      int _tempRandomNumber = _randomGenerator.nextInt(2);
-      while (_tempRandomNumber == _randomNumber) {
-        _tempRandomNumber = _randomGenerator.nextInt(2);
+      _previousRandomNumber = _randomNumber;
+      _intSet.add(_randomNumber);
+      if (_intSet.length == _maxFiles) {
+        _intSet.clear();
+        _intSet.add(_randomNumber);
       }
-      _randomNumber = _tempRandomNumber;
+      while (_intSet.contains(_randomNumber)) {
+        _randomNumber = _randomGenerator.nextInt(_maxFiles);
+      }
     });
   }
 
   void _startTimer() {
     _updateNow();
     _changeBackground();
-    Timer.periodic(Duration(seconds: 60), (Timer t) {
+    Timer.periodic(Duration(milliseconds: 60000), (Timer t) {
       _updateNow();
       _changeBackground();
     });
@@ -50,9 +58,8 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    _updateNow();
-    _changeBackground();
-    Timer(Duration(seconds: 60 - DateTime.now().second), _startTimer);
+    Timer(Duration(milliseconds: 60000 - DateTime.now().second * 1000),
+        _startTimer);
   }
 
   @override
@@ -70,78 +77,104 @@ class _MyHomePageState extends State<MyHomePage> {
         .copyWith(fontSize: MediaQuery.of(context).size.height / 2, height: 1);
 
     final Brightness _brightness = Theme.of(context).brightness;
-    String _background;
+    String _backgroundPrefix;
     if (_brightness == Brightness.light) {
-      _background = "light-" + _randomNumber.toString() + ".jpg";
+      _backgroundPrefix = "light-";
     } else {
-      _background = "dark-" + _randomNumber.toString() + ".jpg";
+      _backgroundPrefix = "dark-";
+    }
+    final String _backgroundImage =
+        _backgroundPrefix + _randomNumber.toString() + ".jpg";
+
+    final String _backgroundImagePrevious =
+        _backgroundPrefix + _previousRandomNumber.toString() + ".jpg";
+
+    final bool _evenPass = _intSet.length % 2 == 0;
+    String _firstChild = "images/background/" + _backgroundImagePrevious;
+    String _secondChild = "images/background/" + _backgroundImage;
+    if (_intSet.length != 0 && _evenPass) {
+      _firstChild = "images/background/" + _backgroundImage;
+      _secondChild = "images/background/" + _backgroundImagePrevious;
     }
 
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("images/background/" + _background),
-            fit: BoxFit.cover,
+    final Stack _clockForeground = Stack(
+      children: <Widget>[
+        AnimatedCrossFade(
+          crossFadeState:
+              _evenPass ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+          duration: Duration(seconds: 3),
+          firstChild: Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            child: Image(
+              image: AssetImage(_firstChild),
+              fit: BoxFit.cover,
+            ),
+          ),
+          secondChild: Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            child: Image(
+              image: AssetImage(_secondChild),
+              fit: BoxFit.cover,
+            ),
           ),
         ),
-        child: Stack(
-          children: <Widget>[
-            Positioned(
-                top: MediaQuery.of(context).size.height / 6,
-                left: 0,
+        Positioned(
+            top: MediaQuery.of(context).size.height / 6,
+            left: 0,
+            child: Text(
+              _time.substring(0, 1),
+              style: _timeTextStyle,
+            )),
+        Positioned(
+            top: MediaQuery.of(context).size.height / 20,
+            left: MediaQuery.of(context).size.width / 6,
+            child: Text(
+              _time.substring(1, 2),
+              style: _timeTextStyle,
+            )),
+        Positioned(
+            bottom: -MediaQuery.of(context).size.height / 20,
+            left: MediaQuery.of(context).size.width / 4,
+            child: Text(
+              _time.substring(2, 3),
+              style: _timeTextStyle,
+            )),
+        Positioned(
+            bottom: MediaQuery.of(context).size.height / 15,
+            left: MediaQuery.of(context).size.width / 4 +
+                MediaQuery.of(context).size.width / 6,
+            child: Text(
+              _time.substring(3, 4),
+              style: _timeTextStyle,
+            )),
+        Align(
+            alignment: Alignment.topRight,
+            child: Text(
+              _date,
+              style: _themeData.textTheme.display2,
+            )),
+        Align(
+            alignment: Alignment.centerRight,
+            child: Container(
+                width: MediaQuery.of(context).size.width / 3,
                 child: Text(
-                  _time.substring(0, 1),
-                  style: _timeTextStyle,
-                )),
-            Positioned(
-                top: MediaQuery.of(context).size.height / 20,
-                left: MediaQuery.of(context).size.width / 6,
-                child: Text(
-                  _time.substring(1, 2),
-                  style: _timeTextStyle,
-                )),
-            Positioned(
-                bottom: -MediaQuery.of(context).size.height / 20,
-                left: MediaQuery.of(context).size.width / 4,
-                child: Text(
-                  _time.substring(2, 3),
-                  style: _timeTextStyle,
-                )),
-            Positioned(
-                bottom: MediaQuery.of(context).size.height / 15,
-                left: MediaQuery.of(context).size.width / 4 +
-                    MediaQuery.of(context).size.width / 6,
-                child: Text(
-                  _time.substring(3, 4),
-                  style: _timeTextStyle,
-                )),
-            Align(
-                alignment: Alignment.topRight,
-                child: Text(
-                  _date,
-                  style: _themeData.textTheme.display2,
-                )),
-            Align(
-                alignment: Alignment.centerRight,
-                child: Container(
-                    width: MediaQuery.of(context).size.width / 3,
-                    child: Text(
-                      _location,
-                      maxLines: 3,
-                      textAlign: TextAlign.right,
-                      overflow: TextOverflow.ellipsis,
-                      style: _themeData.textTheme.display1,
-                    ))),
-            Align(
-                alignment: Alignment.bottomRight,
-                child: Text(
-                  _temp,
-                  style: _themeData.textTheme.display2,
-                )),
-          ],
-        ),
-      ),
+                  _location,
+                  maxLines: 3,
+                  textAlign: TextAlign.right,
+                  overflow: TextOverflow.ellipsis,
+                  style: _themeData.textTheme.display1,
+                ))),
+        Align(
+            alignment: Alignment.bottomRight,
+            child: Text(
+              _temp,
+              style: _themeData.textTheme.display2,
+            )),
+      ],
     );
+
+    return Scaffold(body: _clockForeground);
   }
 }
