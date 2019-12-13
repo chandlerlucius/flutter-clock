@@ -73,15 +73,17 @@ class _MyHomePageState extends State<MyHomePage> {
 
     final ThemeData _themeData = Theme.of(context).copyWith(
         textTheme: Theme.of(context).textTheme.apply(fontFamily: 'NovaMono'));
-    final TextStyle _timeTextStyle = _themeData.textTheme.display4
+    TextStyle _timeTextStyle = _themeData.textTheme.display4
         .copyWith(fontSize: MediaQuery.of(context).size.height / 2, height: 1);
 
     final Brightness _brightness = Theme.of(context).brightness;
     String _backgroundPrefix;
     if (_brightness == Brightness.light) {
       _backgroundPrefix = "light-";
+      _timeTextStyle = _timeTextStyle.copyWith(color: Color(0xBB000000));
     } else {
       _backgroundPrefix = "dark-";
+      _timeTextStyle = _timeTextStyle.copyWith(color: Color(0xBBFFFFFF));
     }
     final String _backgroundImage =
         _backgroundPrefix + _randomNumber.toString() + ".jpg";
@@ -92,7 +94,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final bool _evenPass = _intSet.length % 2 == 0;
     String _firstChild = "images/background/" + _backgroundImagePrevious;
     String _secondChild = "images/background/" + _backgroundImage;
-    if (_intSet.length != 0 && _evenPass) {
+    if (_intSet.length != 0 && _evenPass && _intSet.length != _maxFiles - 1) {
       _firstChild = "images/background/" + _backgroundImage;
       _secondChild = "images/background/" + _backgroundImagePrevious;
     }
