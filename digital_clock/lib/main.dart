@@ -18,13 +18,26 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  DateTime _now = DateTime.now();
+class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
+  Animation<double> _horizontalPainterAnimation;
+  AnimationController _horizontalPainterController;
+  Animation<double> _verticalPainterAnimation;
+  AnimationController _verticalPainterController;
+  double _yValue = 0.0;
+  double _xValue = 0.0;
+  static const double _strokeWidth = 15;
+  final Paint _paint = new Paint()
+    ..color = Colors.transparent
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = _strokeWidth
+    ..isAntiAlias = true;
+
   static final Random _randomGenerator = new Random();
   static final HashSet<int> _intSet = new HashSet();
   static final int _maxFiles = 8;
   static int _randomNumber = _randomGenerator.nextInt(_maxFiles);
   int _previousRandomNumber = _randomNumber;
+  DateTime _now = DateTime.now();
 
   void _updateNow() {
     setState(() {
@@ -46,6 +59,34 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  void _startAnimation() {
+    _horizontalPainterController = AnimationController(
+        duration: Duration(milliseconds: 7500), vsync: this);
+    _verticalPainterController = AnimationController(
+        duration: Duration(milliseconds: 15000), vsync: this);
+
+    _horizontalPainterController.forward();
+    Timer(Duration(milliseconds: 7500), () {
+      _verticalPainterController.forward();
+    });
+
+    _horizontalPainterController.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        _horizontalPainterController.reverse();
+      } else if (status == AnimationStatus.dismissed) {
+        _horizontalPainterController.forward();
+      }
+    });
+
+    _verticalPainterController.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        _verticalPainterController.reverse();
+      } else if (status == AnimationStatus.dismissed) {
+        _verticalPainterController.forward();
+      }
+    });
+  }
+
   void _startTimer() {
     _updateNow();
     _changeBackground();
@@ -60,10 +101,42 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     Timer(Duration(milliseconds: 60000 - DateTime.now().second * 1000),
         _startTimer);
+    _startAnimation();
   }
 
   @override
   Widget build(BuildContext context) {
+    //Handle paint animations first
+    final Size size = MediaQuery.of(context).size;
+    final double _strokeWidth = 15;
+    final double _horizontalPainterXStart =
+        (size.width / 2.25 - size.width / 6) / 2 -
+            _strokeWidth / 2 +
+            size.width / 6;
+    final double _horizontalPainterXEnd =
+        size.width / 2.25 - (_strokeWidth / 2);
+    final double _verticalPainterYStart = size.height / 2 - _strokeWidth;
+    final double _verticalPainterYEnd = size.height - (1.5 * _strokeWidth);
+
+    _horizontalPainterAnimation =
+        Tween(begin: _horizontalPainterXStart, end: _horizontalPainterXEnd)
+            .animate(_horizontalPainterController)
+              ..addListener(() {
+                setState(() {
+                  _paint.color = Color(0xDD000000);
+                  _xValue = _horizontalPainterAnimation.value;
+                });
+              });
+    _verticalPainterAnimation =
+        Tween(begin: _verticalPainterYStart, end: _verticalPainterYEnd)
+            .animate(_verticalPainterController)
+              ..addListener(() {
+                setState(() {
+                  _paint.color = Color(0xDD000000);
+                  _yValue = _verticalPainterAnimation.value;
+                });
+              });
+
     final String _location = widget.model.location;
     final String _format = widget.model.is24HourFormat ? 'HHmm' : 'hhmm';
     final String _time = DateFormat(_format).format(_now);
@@ -74,7 +147,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final ThemeData _themeData = Theme.of(context).copyWith(
         textTheme: Theme.of(context).textTheme.apply(fontFamily: 'NovaMono'));
     TextStyle _timeTextStyle = _themeData.textTheme.display4
-        .copyWith(fontSize: MediaQuery.of(context).size.height / 2, height: 1);
+        .copyWith(fontSize: size.height / 2, height: 1);
 
     final Brightness _brightness = Theme.of(context).brightness;
     String _backgroundPrefix;
@@ -106,16 +179,16 @@ class _MyHomePageState extends State<MyHomePage> {
               _evenPass ? CrossFadeState.showFirst : CrossFadeState.showSecond,
           duration: Duration(seconds: 3),
           firstChild: Container(
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height,
+            width: size.width,
+            height: size.height,
             child: Image(
               image: AssetImage(_firstChild),
               fit: BoxFit.cover,
             ),
           ),
           secondChild: Container(
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height,
+            width: size.width,
+            height: size.height,
             child: Image(
               image: AssetImage(_secondChild),
               fit: BoxFit.cover,
@@ -123,30 +196,29 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
         Positioned(
-            top: MediaQuery.of(context).size.height / 6,
+            top: size.height / 6,
             left: 0,
             child: Text(
               _time.substring(0, 1),
               style: _timeTextStyle,
             )),
         Positioned(
-            top: MediaQuery.of(context).size.height / 20,
-            left: MediaQuery.of(context).size.width / 6,
+            top: size.height / 20,
+            left: size.width / 6,
             child: Text(
               _time.substring(1, 2),
               style: _timeTextStyle,
             )),
         Positioned(
-            bottom: -MediaQuery.of(context).size.height / 20,
-            left: MediaQuery.of(context).size.width / 4,
+            bottom: -size.height / 20,
+            left: size.width / 4,
             child: Text(
               _time.substring(2, 3),
               style: _timeTextStyle,
             )),
         Positioned(
-            bottom: MediaQuery.of(context).size.height / 15,
-            left: MediaQuery.of(context).size.width / 4 +
-                MediaQuery.of(context).size.width / 6,
+            bottom: size.height / 15,
+            left: size.width / 4 + size.width / 6,
             child: Text(
               _time.substring(3, 4),
               style: _timeTextStyle,
@@ -160,7 +232,7 @@ class _MyHomePageState extends State<MyHomePage> {
         Align(
             alignment: Alignment.centerRight,
             child: Container(
-                width: MediaQuery.of(context).size.width / 3,
+                width: size.width / 3,
                 child: Text(
                   _location,
                   maxLines: 3,
@@ -174,9 +246,73 @@ class _MyHomePageState extends State<MyHomePage> {
               _temp,
               style: _themeData.textTheme.display2,
             )),
+        CustomPaint(
+          size: Size(size.width, size.height),
+          painter: VerticalPainter(_paint, _verticalPainterYStart, _yValue),
+        ),
+        CustomPaint(
+          size: Size(size.width, size.height),
+          painter: HorizontalPainter(_paint, _horizontalPainterXStart, _xValue),
+        ),
       ],
     );
 
     return Scaffold(body: _clockForeground);
+  }
+
+  @override
+  void dispose() {
+    _verticalPainterController.dispose();
+    super.dispose();
+  }
+}
+
+class VerticalPainter extends CustomPainter {
+  final double _yValue;
+  final double _yStart;
+  final Paint _paint;
+
+  VerticalPainter(this._paint, this._yStart, this._yValue);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    double _xValue = size.width / 2.25;
+
+    canvas.drawLine(Offset(_xValue, _yStart + 7.5), Offset(_xValue, _yValue), _paint);
+    // canvas.drawLine(Offset(_xValue, _yStart),
+    //     Offset(_xValue, 2 * _yStart - _yValue), _paint);
+
+    _xValue = size.width / 6 + 7.5;
+
+    // canvas.drawLine(Offset(_xValue, _yStart), Offset(_xValue, _yValue), _paint);
+    canvas.drawLine(Offset(_xValue, _yStart),
+        Offset(_xValue, 2 * _yStart - _yValue), _paint);
+  }
+
+  @override
+  bool shouldRepaint(VerticalPainter oldDelegate) {
+    return true;
+  }
+}
+
+class HorizontalPainter extends CustomPainter {
+  final double _xValue;
+  final double _xStart;
+  final Paint _paint;
+
+  HorizontalPainter(this._paint, this._xStart, this._xValue);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final double _yValue = size.height / 2;
+
+    canvas.drawLine(Offset(_xStart, _yValue), Offset(_xValue, _yValue), _paint);
+    canvas.drawLine(Offset(_xStart, _yValue),
+        Offset(2 * _xStart - _xValue, _yValue), _paint);
+  }
+
+  @override
+  bool shouldRepaint(HorizontalPainter oldDelegate) {
+    return true;
   }
 }
