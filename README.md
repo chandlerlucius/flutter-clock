@@ -8,7 +8,7 @@
 
 ## Demo
 <h1 align="center">
-    <img src="https://github.com/chandlerlucius/linux-dashboard/blob/master/flutter-clock.gif" alt="Demo" />
+    <img src="https://github.com/chandlerlucius/flutter-clock/blob/master/flutter-clock.gif" alt="Demo" />
 </h1>
 
 ## Features
