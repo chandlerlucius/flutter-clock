@@ -12,9 +12,9 @@
 </h1>
 
 ## Features
-Every 15 seconds animation runs 
-Every 60 seconds background rotates randomly until all images have appeared once 
-Different backgrounds for light and dark modes 
-24 hour time 
-Location 
-Temperature 
+Every 15 seconds animation runs  
+Every 60 seconds background rotates randomly until all images have appeared once  
+Different backgrounds for light and dark modes  
+24 hour time  
+Location  
+Temperature  
